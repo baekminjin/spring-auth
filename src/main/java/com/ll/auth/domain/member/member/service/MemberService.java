@@ -3,6 +3,7 @@ package com.ll.auth.domain.member.member.service;
 import com.ll.auth.domain.member.member.entity.Member;
 import com.ll.auth.domain.member.member.repository.MemberRepository;
 import com.ll.auth.global.exceptions.ServiceException;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -36,5 +37,9 @@ public class MemberService {
 
     public Optional<Member> findByUsername(String username) {
         return memberRepository.findByUsername(username);
+    }
+
+    public Optional<Member> findById(long authorId) {
+        return memberRepository.findById(authorId);
     }
 }
