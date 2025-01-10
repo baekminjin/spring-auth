@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +31,7 @@ public class MemberService {
                 .username(username)
                 .password(password)
                 .nickname(nickname)
+                .password2(UUID.randomUUID().toString()) //UUID 절대 중복되지 않는 랜덤한 값
                 .build();
 
         return memberRepository.save(member);

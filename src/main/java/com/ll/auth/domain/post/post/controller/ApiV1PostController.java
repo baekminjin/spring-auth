@@ -24,7 +24,7 @@ import java.util.List;
 public class ApiV1PostController {
     private final PostService postService;
     private final MemberService memberService;
-    private final HttpServletRequest request;
+    private final HttpServletRequest request; //알맞게 매칭
 
     private Member checkAuthentication() {
         String credentials = request.getHeader("Authorization");
@@ -33,7 +33,7 @@ public class ApiV1PostController {
         long actorId = Long.parseLong(credentialsBits[0]);
         String actorPassword = credentialsBits[1];
         Member actor = memberService.findById(actorId).get();
-        if (!actor.getPassword().equals(actorPassword))
+        if (!actor.getPassword2().equals(actorPassword))
             throw new ServiceException("401-1", "비밀번호가 일치하지 않습니다.");
         return actor;
     }
