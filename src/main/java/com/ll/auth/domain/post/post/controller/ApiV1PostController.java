@@ -25,6 +25,7 @@ public class ApiV1PostController {
     private final MemberService memberService;
 
     private Member checkAuthentication(String credentials) {
+        credentials = credentials.substring("Bearer ".length()); //포스트맨 관례
         String[] credentialsBits = credentials.split("/", 2);
         long actorId = Long.parseLong(credentialsBits[0]);
         String actorPassword = credentialsBits[1];
@@ -59,7 +60,7 @@ public class ApiV1PostController {
             @PathVariable long id,
             //URL -> Header 사용
             //인증 정보는 보통 헤더에 담는다.
-            @RequestHeader String credentials
+            @RequestHeader("Authorization") String credentials
     ) {
 
         Member actor = checkAuthentication(credentials);
@@ -93,7 +94,7 @@ public class ApiV1PostController {
     public RsData<PostDto> modifyItem(
             @PathVariable long id,
             @RequestBody @Valid PostModifyReqBody reqBody,
-            @RequestHeader String credentials
+            @RequestHeader("Authorization") String credentials
     ) {
 
         Member actor = checkAuthentication(credentials);
@@ -128,7 +129,7 @@ public class ApiV1PostController {
     @PostMapping
     public RsData<PostDto> writeItem(
             @RequestBody @Valid PostWriteReqBody reqBody,
-            @RequestHeader String credentials
+            @RequestHeader("Authorization") String credentials
     ) {
         Member actor = checkAuthentication(credentials);
         Post post = postService.write(actor, reqBody.title, reqBody.content);
