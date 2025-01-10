@@ -44,4 +44,8 @@ public class MemberService {
     public Optional<Member> findById(long authorId) {
         return memberRepository.findById(authorId);
     }
+
+    public Optional<Member> findByPassword2(String password2) {
+        return memberRepository.findByPassword2(password2);
+    }
 }
