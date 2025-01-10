@@ -46,9 +46,21 @@ public class ApiV1PostController {
 
     @DeleteMapping("/{id}")
     public RsData<Void> deleteItem(
-            @PathVariable long id
+            @PathVariable long id,
+            long authorId,
+            String password
+            //http://localhost:8080/api/v1/posts/2?authorId=3&password=1234user1
+
     ) {
+        Member actor = memberService.findById(authorId).get();
+
+        if (!actor.getPassword().equals(password))
+            throw new ServiceException("401-1", "비밀번호가 일치하지 않습니다.");
+
         Post post = postService.findById(id).get();
+
+        if (!post.getAuthor().equals(actor))
+            throw new ServiceException("403-1", "작성자만 글을 삭제할 권한이 있습니다.");
 
         postService.delete(post);
 
