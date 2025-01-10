@@ -31,7 +31,7 @@ public class MemberService {
                 .username(username)
                 .password(password)
                 .nickname(nickname)
-                .password2(UUID.randomUUID().toString()) //UUID 절대 중복되지 않는 랜덤한 값
+                .apiKey(UUID.randomUUID().toString()) //UUID 절대 중복되지 않는 랜덤한 값
                 .build();
 
         return memberRepository.save(member);
@@ -45,7 +45,7 @@ public class MemberService {
         return memberRepository.findById(authorId);
     }
 
-    public Optional<Member> findByPassword2(String password2) {
-        return memberRepository.findByPassword2(password2);
+    public Optional<Member> findByApiKey(String apiKey) {
+        return memberRepository.findByApiKey(apiKey);
     }
 }
