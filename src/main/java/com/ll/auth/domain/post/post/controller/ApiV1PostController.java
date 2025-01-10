@@ -7,6 +7,7 @@ import com.ll.auth.domain.post.post.entity.Post;
 import com.ll.auth.domain.post.post.service.PostService;
 import com.ll.auth.global.exceptions.ServiceException;
 import com.ll.auth.global.rsData.RsData;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -58,11 +59,10 @@ public class ApiV1PostController {
     @DeleteMapping("/{id}")
     public RsData<Void> deleteItem(
             @PathVariable long id,
-            //URL -> Header 사용
-            //인증 정보는 보통 헤더에 담는다.
-            @RequestHeader("Authorization") String credentials
+            HttpServletRequest req
     ) {
 
+        String credentials = req.getHeader("Authorization");
         Member actor = checkAuthentication(credentials);
         Post post = postService.findById(id).get();
 
