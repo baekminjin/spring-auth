@@ -8,6 +8,7 @@ import com.ll.auth.domain.post.post.service.PostService;
 import com.ll.auth.global.exceptions.ServiceException;
 import com.ll.auth.global.rq.Rq;
 import com.ll.auth.global.rsData.RsData;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -23,9 +24,7 @@ import java.util.List;
 @RequestMapping("/api/v1/posts/{postId}/comments")
 @RequiredArgsConstructor
 public class ApiV1PostCommentController {
-	@Autowired
-	@Lazy
-	private ApiV1PostCommentController self;
+	private final EntityManager em;
 	private final PostService postService;
 	private final Rq rq;
 
@@ -70,24 +69,10 @@ public class ApiV1PostCommentController {
 	}
 
 	@PostMapping
+	@Transactional
 	public RsData<Void> writeItem(
 			@PathVariable long postId,
 			@RequestBody @Valid PostCommentWriteReqBody reqBody
-	) {
-		PostComment postComment = self._writeItem(postId, reqBody);
-
-		return new RsData<>(
-				"201-1",
-				"%d번 댓글이 작성되었습니다.".formatted(postComment.getId())
-				//트랜잭션이 끝나야 인서트가 실행되는데 그 전에 id를 가져오면 null이 나오는 오류
-				// 트랜잭션은 self / 트랜잭션 메소드를 만들어서 끝나면 호출 하여 해결
-		);
-	}
-
-	@Transactional
-	public PostComment _writeItem(
-			long postId,
-			PostCommentWriteReqBody reqBody
 	) {
 		Member actor = rq.checkAuthentication();
 
@@ -95,10 +80,16 @@ public class ApiV1PostCommentController {
 				() -> new ServiceException("404-1", "%d번 글은 존재하지 않습니다.".formatted(postId))
 		);
 
-		return post.addComment(
+		PostComment postComment = post.addComment(
 				actor,
 				reqBody.content
 		);
-		//인서트 발생
+
+		em.flush(); //트랜잭션 오류 해결2 -> flush()는 즉시 실행
+
+		return new RsData<>(
+				"201-1",
+				"%d번 댓글이 작성되었습니다.".formatted(postComment.getId())
+		);
 	}
 }
