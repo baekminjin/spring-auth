@@ -108,11 +108,13 @@ public class ApiV1PostCommentController {
 		Post post = postService.findById(postId).orElseThrow(
 				() -> new ServiceException("404-1", "%d번 글은 존재하지 않습니다.".formatted(postId))
 		);
+
 		PostComment postComment = post.getCommentById(id).orElseThrow(
 				() -> new ServiceException("404-2", "%d번 댓글은 존재하지 않습니다.".formatted(id))
 		);
-		if (!postComment.getAuthor().equals(actor))
-			throw new ServiceException("403-1", "작성자만 수정할 수 있습니다.");
+
+		postComment.checkActorCanModify(actor);
+
 		postComment.modify(reqBody.content);
 		return new RsData<>(
 				"200-1",
@@ -134,8 +136,8 @@ public class ApiV1PostCommentController {
 				() -> new ServiceException("404-2", "%d번 댓글은 존재하지 않습니다.".formatted(id))
 		);
 
-		if (!actor.isAdmin() && !postComment.getAuthor().equals(actor))
-			throw new ServiceException("403-1", "작성자만 삭제할 수 있습니다.");
+		postComment.checkActorCanDelete(actor);
+
 		post.removeComment(postComment);
 		return new RsData<>(
 				"200-1",
