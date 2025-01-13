@@ -56,8 +56,7 @@ public class ApiV1PostController {
         Member actor = rq.checkAuthentication();
         Post post = postService.findById(id).get();
 
-        if (!actor.isAdmin() && !post.getAuthor().equals(actor))
-            throw new ServiceException("403-1", "작성자만 글을 삭제할 권한이 있습니다.");
+        post.checkActorCanDelete(actor);
 
         postService.delete(post);
 
@@ -89,9 +88,7 @@ public class ApiV1PostController {
         Member actor = rq.checkAuthentication();
         Post post = postService.findById(id).get();
 
-        //인가 (db의 작성자와 주장하는 작성자 비교)
-        if (!post.getAuthor().equals(actor))
-            throw new ServiceException("403-1", "작성자만 글을 수정할 권한이 있습니다.");
+        post.checkActorCanModify(actor);
 
         postService.modify(post, reqBody.title, reqBody.content);
 
