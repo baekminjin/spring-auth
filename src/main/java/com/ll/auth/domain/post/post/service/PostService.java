@@ -44,4 +44,8 @@ public class PostService {
         post.setTitle(title);
         post.setContent(content);
     }
+
+	public void flush() {
+        postRepository.flush(); // em.flush(); 와 동일
+	}
 }

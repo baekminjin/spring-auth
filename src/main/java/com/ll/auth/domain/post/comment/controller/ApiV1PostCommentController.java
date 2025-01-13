@@ -85,7 +85,7 @@ public class ApiV1PostCommentController {
 				reqBody.content
 		);
 
-		em.flush(); //트랜잭션 오류 해결2 -> flush()는 즉시 실행
+		postService.flush();
 
 		return new RsData<>(
 				"201-1",
