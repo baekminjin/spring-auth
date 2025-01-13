@@ -1,6 +1,6 @@
 package com.ll.auth.domain.post.comment.controller;
+
 import com.ll.auth.domain.post.comment.dto.PostCommentDto;
-import com.ll.auth.domain.post.comment.entity.PostComment;
 import com.ll.auth.domain.post.post.entity.Post;
 import com.ll.auth.domain.post.post.service.PostService;
 import com.ll.auth.global.exceptions.ServiceException;
@@ -17,7 +17,7 @@ import java.util.List;
 public class ApiV1PostCommentController {
 	private final PostService postService;
 
-	//댓글 조회
+	//댓글 다건 조회
 	@GetMapping
 	public List<PostCommentDto> getItems( //<PostComment> 양방향에 있는 것은 무한 재귀에 빠질 수 있어서 DTO 생성
 			@PathVariable long postId
@@ -30,5 +30,27 @@ public class ApiV1PostCommentController {
 				.stream()
 				.map(PostCommentDto::new)
 				.toList();
+	}
+
+	//단건 조회
+	@GetMapping("/{id}")
+	public PostCommentDto getItem(
+			@PathVariable long postId,
+			@PathVariable long id
+	) {
+		Post post = postService.findById(postId).orElseThrow(
+				() -> new ServiceException("404-1", "%d번 글은 존재하지 않습니다.".formatted(postId))
+		);
+
+		return post
+				.getComments()
+				.reversed()
+				.stream()
+				.filter(comment -> comment.getId() == id)
+				.map(PostCommentDto::new)
+				.findFirst()
+				.orElseThrow(
+						() -> new ServiceException("404-2", "%d번 댓글은 존재하지 않습니다.".formatted(id))
+				);
 	}
 }
