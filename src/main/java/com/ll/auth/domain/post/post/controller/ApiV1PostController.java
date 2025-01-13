@@ -56,7 +56,7 @@ public class ApiV1PostController {
         Member actor = rq.checkAuthentication();
         Post post = postService.findById(id).get();
 
-        if (!post.getAuthor().equals(actor))
+        if (!actor.isAdmin() && !post.getAuthor().equals(actor))
             throw new ServiceException("403-1", "작성자만 글을 삭제할 권한이 있습니다.");
 
         postService.delete(post);
