@@ -6,6 +6,7 @@ import com.ll.auth.domain.post.post.dto.PostDto;
 import com.ll.auth.domain.post.post.entity.Post;
 import com.ll.auth.domain.post.post.service.PostService;
 import com.ll.auth.global.exceptions.ServiceException;
+import com.ll.auth.global.rq.Rq;
 import com.ll.auth.global.rsData.RsData;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -25,16 +26,7 @@ import java.util.Optional;
 public class ApiV1PostController {
     private final PostService postService;
     private final MemberService memberService;
-    private final HttpServletRequest request; //알맞게 매칭
-
-    private Member checkAuthentication() {
-        String credentials = request.getHeader("Authorization");
-        String apiKey = credentials.substring("Bearer ".length()); //포스트맨 관례
-        Optional<Member> opActor = memberService.findByApiKey(apiKey);
-        if (opActor.isEmpty())
-            throw new ServiceException("401-1", "비밀번호가 일치하지 않습니다.");
-        return opActor.get();
-    }
+    private final Rq rq;
 
     @GetMapping
     public List<PostDto> getItems() {
@@ -61,7 +53,7 @@ public class ApiV1PostController {
             @PathVariable long id
     ) {
 
-        Member actor = checkAuthentication();
+        Member actor = rq.checkAuthentication();
         Post post = postService.findById(id).get();
 
         if (!post.getAuthor().equals(actor))
@@ -94,7 +86,7 @@ public class ApiV1PostController {
             @RequestBody @Valid PostModifyReqBody reqBody
     ) {
 
-        Member actor = checkAuthentication();
+        Member actor = rq.checkAuthentication();
         Post post = postService.findById(id).get();
 
         //인가 (db의 작성자와 주장하는 작성자 비교)
@@ -127,7 +119,7 @@ public class ApiV1PostController {
     public RsData<PostDto> writeItem(
             @RequestBody @Valid PostWriteReqBody reqBody
     ) {
-        Member actor = checkAuthentication();
+        Member actor = rq.checkAuthentication();
         Post post = postService.write(actor, reqBody.title, reqBody.content);
 
         return new RsData<>(

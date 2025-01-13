@@ -4,6 +4,7 @@ import com.ll.auth.domain.member.member.dto.MemberDto;
 import com.ll.auth.domain.member.member.entity.Member;
 import com.ll.auth.domain.member.member.service.MemberService;
 import com.ll.auth.global.exceptions.ServiceException;
+import com.ll.auth.global.rq.Rq;
 import com.ll.auth.global.rsData.RsData;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -20,16 +21,7 @@ import java.util.Optional;
 public class ApiV1MemberController {
 
     private final MemberService memberService;
-    private final HttpServletRequest request;
-
-    private Member checkAuthentication() {
-        String credentials = request.getHeader("Authorization");
-        String apiKey = credentials.substring("Bearer ".length());
-        Optional<Member> opActor = memberService.findByApiKey(apiKey);
-        if (opActor.isEmpty())
-            throw new ServiceException("401-1", "비밀번호가 일치하지 않습니다.");
-        return opActor.get();
-    }
+    private final Rq rq;
 
 
 
@@ -97,7 +89,7 @@ public class ApiV1MemberController {
 
     @GetMapping("/me")
     public MemberDto me() {
-        Member actor = checkAuthentication();
+        Member actor = rq.checkAuthentication();
         return new MemberDto(actor);
     }
 }
